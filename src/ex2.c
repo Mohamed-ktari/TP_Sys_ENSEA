@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include "../include/ex3.h"
 
 #define PROMPT "enseash% "
 #define ERROR "Command not found\n"
@@ -17,6 +18,7 @@ void display_regular_prompt(char *buffer, size_t buf_size) {
         write(STDOUT_FILENO, PROMPT, strlen(PROMPT));
         len = read(STDIN_FILENO, buffer, buf_size);
         buffer[len - 1] = '\0';
+        display_Bye(buffer,len);
         pid = fork();
         if(pid < 0){
             write(STDERR_FILENO,FORK_ERROR,strlen(FORK_ERROR));
