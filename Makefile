@@ -1,0 +1,28 @@
+CC = gcc
+CFLAGS = -Wall -Wextra -Iinclude
+
+SRC = src/main.c src/ex1.c 
+
+
+OBJ = $(patsubst src/%.c,obj/%.o,$(SRC))
+
+
+TARGET = bin/enseash
+
+
+$(shell mkdir -p obj bin)
+
+
+all: $(TARGET)
+
+
+$(TARGET): $(OBJ)
+	$(CC) $(OBJ) -o $(TARGET)
+
+
+obj/%.o: src/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+
+clean:
+	rm -f obj/*.o bin/enseash
