@@ -4,6 +4,6 @@
 #define MAX_SIZE 64
 #define NUM_SIZE 16
 
-char* print_status_prompt(int status);
+char*  print_status_prompt(int status);
 
 #endif

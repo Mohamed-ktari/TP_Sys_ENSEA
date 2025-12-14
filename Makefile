@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Iinclude
 
-SRC = src/main.c src/ex1.c src/ex2.c src/ex3.c src/ex4.c
+SRC = src/main.c src/ex1.c src/ex2.c src/ex3.c src/ex4.c src/ex5.c
 
 
 OBJ = $(patsubst src/%.c,obj/%.o,$(SRC))

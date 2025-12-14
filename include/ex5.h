@@ -1,6 +1,7 @@
-#ifndef EX2_H
-#define EX2_H
+#ifndef EX5_H
+#define EX5_H
 #include <stddef.h> 
+
 
 #define PROMPT "enseash% "
 #define CONTINUOUS_PROMPT "enseash "
@@ -8,7 +9,6 @@
 #define FORK_ERROR "Fork failed\n"
 #define PROMPT_SIZE 256
 
-
-void display_regular_prompt(char *buffer, size_t buf_size);
+void display_regular_prompt_with_time_and_state(char *buffer, size_t buf_size);
 
 #endif
