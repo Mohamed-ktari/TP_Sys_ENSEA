@@ -1,0 +1,8 @@
+total 24
+drwxrwxr-x 2 mohamed mohamed 4096 Dec 15 08:53 bin
+drwxrwxr-x 2 mohamed mohamed 4096 Dec 15 08:37 include
+-rw-rw-r-- 1 mohamed mohamed  372 Dec 15 08:53 Makefile
+drwxrwxr-x 2 mohamed mohamed 4096 Dec 15 08:51 obj
+-rw-rw-r-- 1 mohamed mohamed   15 Dec  8 08:25 README.md
+drwxrwxr-x 2 mohamed mohamed 4096 Dec 15 08:36 src
+-rw-rw-r-- 1 mohamed mohamed    0 Dec 15 08:53 testing.txt

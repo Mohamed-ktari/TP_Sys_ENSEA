@@ -1,6 +1,5 @@
 #ifndef EX6_H
 #define EX6_H
-#include <stddef.h> 
 
 #define MAX_ARGS 32
 

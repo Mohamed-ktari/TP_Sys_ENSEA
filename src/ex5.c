@@ -60,6 +60,7 @@ void display_regular_prompt_with_time_and_state(char *buffer, size_t buf_size)
         if (pid == 0) {
             char *argv[MAX_ARGS];
             parse_command(buffer, argv);
+            handle_redirection(argv);
             execvp(argv[0], argv);
             write(STDERR_FILENO, ERROR, strlen(ERROR));
             exit(EXIT_FAILURE);
