@@ -10,17 +10,8 @@
 #include "../include/ex3.h"
 #include "../include/ex4.h"
 #include "../include/ex6.h"
-
-
-
-
-
-#define PROMPT "enseash% "
-#define CONTINUOUS_PROMPT "enseash "
-#define ERROR "Command not found\n"
-#define FORK_ERROR "Fork failed\n"
-#define PROMPT_SIZE 256
-#define MAX_ARGS 32
+#include "../include/ex7.h"
+#include "../include/ex8.h"
 
 
 
@@ -38,6 +29,7 @@ void display_regular_prompt_with_time_and_state(char *buffer, size_t buf_size)
     int status;
     char prompt_buff[PROMPT_SIZE];
     char *state_buffer;
+    char *left, *right;
 
     write(STDOUT_FILENO, PROMPT, strlen(PROMPT));
 
@@ -48,9 +40,18 @@ void display_regular_prompt_with_time_and_state(char *buffer, size_t buf_size)
         buffer[len - 1] = '\0';
         rtrim(buffer);
         display_Bye(buffer, len);
+    
+
+    if (split_pipe(buffer, &left, &right)) {
+        // execute pipe
+        clock_gettime(CLOCK_MONOTONIC, &starting_time);
+        status = execute_pipe(left, right);
+        clock_gettime(CLOCK_MONOTONIC, &ending_time);
+        }
+        else {
+            // single-command execution
 
         clock_gettime(CLOCK_MONOTONIC, &starting_time);
-
         pid = fork();
         if (pid < 0) {
             write(STDERR_FILENO, FORK_ERROR, strlen(FORK_ERROR));
@@ -68,15 +69,15 @@ void display_regular_prompt_with_time_and_state(char *buffer, size_t buf_size)
 
         waitpid(pid, &status, 0);
         clock_gettime(CLOCK_MONOTONIC, &ending_time);
-        state_buffer=print_status_prompt(status);
-        /* Compute elapsed time in ms */
+        
+    }
+        //compute time in ms
         long time_ms = time_calculator_in_ms(starting_time,ending_time);
-
+        state_buffer=print_status_prompt(status);
 
         /* Build final prompt */
         snprintf(prompt_buff, sizeof(prompt_buff),"%s [%s|%ldms] %% ",CONTINUOUS_PROMPT,state_buffer, time_ms);
         free(state_buffer);
-
         write(STDOUT_FILENO, prompt_buff, strlen(prompt_buff));
     }
 }

@@ -1,5 +1,5 @@
-#ifndef EX6_H
-#define EX6_H
+#ifndef EX7_H
+#define EX7_H
 
 #define ACCESS_MODE 0644
 
