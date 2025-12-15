@@ -4,10 +4,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/wait.h>
+#include <time.h>
 
+#include "../include/ex2.h"
 #include "../include/ex3.h"
 #include "../include/ex4.h"
-#include <time.h>
+#include "../include/ex6.h"
+
+
+
 
 
 #define PROMPT "enseash% "
@@ -15,6 +20,7 @@
 #define ERROR "Command not found\n"
 #define FORK_ERROR "Fork failed\n"
 #define PROMPT_SIZE 256
+#define MAX_ARGS 32
 
 
 
@@ -39,10 +45,8 @@ void display_regular_prompt_with_time_and_state(char *buffer, size_t buf_size)
 
         
         len = read(STDIN_FILENO, buffer, buf_size);
-        
-
-        buffer[len - 1] = '\0';   
-
+        buffer[len - 1] = '\0';
+        rtrim(buffer);
         display_Bye(buffer, len);
 
         clock_gettime(CLOCK_MONOTONIC, &starting_time);
@@ -54,7 +58,9 @@ void display_regular_prompt_with_time_and_state(char *buffer, size_t buf_size)
         }
 
         if (pid == 0) {
-            execlp(buffer, buffer, NULL);
+            char *argv[MAX_ARGS];
+            parse_command(buffer, argv);
+            execvp(argv[0], argv);
             write(STDERR_FILENO, ERROR, strlen(ERROR));
             exit(EXIT_FAILURE);
         }

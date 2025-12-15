@@ -10,5 +10,6 @@
 
 
 void display_regular_prompt(char *buffer, size_t buf_size);
+void rtrim(char *s);
 
 #endif

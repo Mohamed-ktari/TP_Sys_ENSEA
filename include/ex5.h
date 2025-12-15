@@ -8,6 +8,7 @@
 #define ERROR "Command not found\n"
 #define FORK_ERROR "Fork failed\n"
 #define PROMPT_SIZE 256
+#define MAX_ARGS 32
 
 void display_regular_prompt_with_time_and_state(char *buffer, size_t buf_size);
 

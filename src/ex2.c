@@ -12,6 +12,18 @@
 #define FORK_ERROR "Fork failed\n"
 #define PROMPT_SIZE 256
 
+// trim the extra spaces in the end of the string
+void rtrim(char *s)
+{
+    int i = strlen(s) - 1;
+
+    while (i >= 0 && (s[i] == ' ' || s[i] == '\t')) {
+        s[i] = '\0';
+        i--;
+    }
+}
+
+
 void display_regular_prompt(char *buffer, size_t buf_size) {
     __pid_t pid;
     ssize_t len;
@@ -24,6 +36,7 @@ void display_regular_prompt(char *buffer, size_t buf_size) {
         
         len = read(STDIN_FILENO, buffer, buf_size);
         buffer[len - 1] = '\0';
+        rtrim(buffer);
         display_Bye(buffer,len);  // add this for exercice 3
         pid = fork();
         if(pid < 0){
