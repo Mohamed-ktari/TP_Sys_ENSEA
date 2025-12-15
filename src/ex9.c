@@ -1,7 +1,9 @@
 #define _POSIX_C_SOURCE 200809L
+#define _GNU_SOURCE
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
 #include <stdio.h>
 #include <sys/wait.h>
 #include <time.h>
@@ -18,8 +20,6 @@
 #include "../include/ex8.h"
 
 #define MAX_BG 32
-
-struct timespec starting_time, ending_time;
 
 typedef struct {
     int job_id;
@@ -78,7 +78,9 @@ void check_background_processes(void)
 
 int is_background(char **argv)
 {
+    
     int i = 0;
+    
     while (argv[i]) i++;
 
     if (i > 0 && strcmp(argv[i - 1], "&") == 0) {
@@ -99,6 +101,7 @@ void display_regular_prompt_with_time_and_state_while_handling_background_proces
     char prompt_buff[PROMPT_SIZE];
     char *state_buffer;
     char *left, *right;
+    char *argv[MAX_ARGS];
 
     write(STDOUT_FILENO, PROMPT, strlen(PROMPT));
 
@@ -110,25 +113,17 @@ void display_regular_prompt_with_time_and_state_while_handling_background_proces
     buffer[len - 1] = '\0';
     rtrim(buffer);
     display_Bye(buffer, len);
-    int is_bg = ends_with_ampersand(buffer);
+    parse_command(buffer,argv);
+    int is_bg = is_background(argv);
 
     if (split_pipe(buffer, &left, &right)) {
-        if (is_bg) {
-            execute_pipe_background(left, right);
-            state_buffer = strdup("1&");
-        }
-        else{
         // execute pipe
         clock_gettime(CLOCK_MONOTONIC, &starting_time);
         status = execute_pipe(left, right);
         clock_gettime(CLOCK_MONOTONIC, &ending_time);
         }
-    }else {
-            if (is_bg) {
-            execute_background(buffer);
-            state_buffer = strdup("1&");
-        }
-         else{   // single-command execution
+            
+        else{   // single-command execution
 
         clock_gettime(CLOCK_MONOTONIC, &starting_time);
         pid = fork();
@@ -139,20 +134,27 @@ void display_regular_prompt_with_time_and_state_while_handling_background_proces
 
         if (pid == 0) {
             char *argv[MAX_ARGS];
-            parse_command(buffer, argv);
             handle_redirection(argv);
             execvp(argv[0], argv);
             write(STDERR_FILENO, ERROR, strlen(ERROR));
             exit(EXIT_FAILURE);
         }
-
+        if (is_bg) {
+            add_bg_process(pid, buffer, starting_time);
+            state_buffer = strdup("1&");
+        }
+        else{
         waitpid(pid, &status, 0);
         clock_gettime(CLOCK_MONOTONIC, &ending_time);
+        }
     }
         
-    }
         //compute time in ms
-        long time_ms = time_calculator_in_ms(starting_time,ending_time);
+        long time_ms = 0;
+
+        if (!is_bg) {
+            time_ms = time_calculator_in_ms(starting_time, ending_time);
+        }
         state_buffer=print_status_prompt(status);
 
         /* Build final prompt */
