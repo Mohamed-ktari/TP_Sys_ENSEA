@@ -29,7 +29,7 @@ void display_regular_prompt_with_time_and_state(char *buffer, size_t buf_size)
     int status;
     char prompt_buff[PROMPT_SIZE];
     char *state_buffer;
-    char *left, *right;
+    char *left_command, *right_command;
 
     write(STDOUT_FILENO, PROMPT, strlen(PROMPT));
 
@@ -42,10 +42,10 @@ void display_regular_prompt_with_time_and_state(char *buffer, size_t buf_size)
         display_Bye(buffer, len);
     
 
-    if (split_pipe(buffer, &left, &right)) {
+    if (split_pipe(buffer, &left_command, &right_command)) {
         // execute pipe
         clock_gettime(CLOCK_MONOTONIC, &starting_time);
-        status = execute_pipe(left, right);
+        status = execute_pipe(left_command, right_command);
         clock_gettime(CLOCK_MONOTONIC, &ending_time);
         }
         else {

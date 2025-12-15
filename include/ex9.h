@@ -2,6 +2,7 @@
 #define EX9_H
 #include <sys/types.h> 
 
+#define MAX_BACKGROUND_PROCESS 32
 
 void add_bg_process(pid_t pid, const char *cmd, struct timespec start);
 void check_background_processes(void);

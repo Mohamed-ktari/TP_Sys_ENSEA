@@ -19,32 +19,32 @@
 #include "../include/ex7.h"
 #include "../include/ex8.h"
 
-#define MAX_BG 32
+#define MAX_BACKGROUND_PROCESS 32
 
 typedef struct {
     int job_id;
     pid_t pid;
     char command[256];
     struct timespec start_time;
-    int active;
-} bg_process_t;
+    int is_active;
+} background_process_t;
 
-bg_process_t bg_list[MAX_BG];
-int bg_count = 0;
+background_process_t background_list[MAX_BACKGROUND_PROCESS];
+int background_count = 0;
 int next_job_id = 1;
 
 
-void add_bg_process(pid_t pid, const char *cmd, struct timespec start)
+void add_background_process(pid_t pid, const char *cmd, struct timespec start)
 {
-    for (int i = 0; i < MAX_BG; i++) {
-        if (!bg_list[i].active) {
-            bg_list[i].job_id = next_job_id++;
-            bg_list[i].pid = pid;
-            strncpy(bg_list[i].command, cmd, sizeof(bg_list[i].command) - 1);
-            bg_list[i].start_time = start;
-            bg_list[i].active = 1;
+    for (int i = 0; i < MAX_BACKGROUND_PROCESS; i++) {
+        if (!background_list[i].is_active) {
+            background_list[i].job_id = next_job_id++;
+            background_list[i].pid = pid;
+            strncpy(background_list[i].command, cmd, sizeof(background_list[i].command) - 1);
+            background_list[i].start_time = start;
+            background_list[i].is_active = 1;
 
-            printf("[%d] %d\n", bg_list[i].job_id, pid);
+            printf("[%d] %d\n", background_list[i].job_id, pid);
             return;
         }
     }
@@ -56,22 +56,22 @@ void check_background_processes(void)
     struct rusage usage;
     struct timespec end;
 
-    for (int i = 0; i < MAX_BG; i++) {
-        if (!bg_list[i].active)
+    for (int i = 0; i < MAX_BACKGROUND_PROCESS; i++) {
+        if (!background_list[i].is_active)
             continue;
 
-        pid_t ret = wait4(bg_list[i].pid, &status, WNOHANG, &usage);
+        pid_t ret = wait4(background_list[i].pid, &status, WNOHANG, &usage);
         if (ret > 0) {
             clock_gettime(CLOCK_MONOTONIC, &end);
 
-            long ms = time_calculator_in_ms(bg_list[i].start_time, end);
+            long ms = time_calculator_in_ms(background_list[i].start_time, end);
 
             printf("[%d]+ Ended: %s [%ldms]\n",
-                   bg_list[i].job_id,
-                   bg_list[i].command,
+                   background_list[i].job_id,
+                   background_list[i].command,
                    ms);
 
-            bg_list[i].active = 0;
+            background_list[i].is_active = 0;
         }
     }
 }
@@ -100,7 +100,7 @@ void display_regular_prompt_with_time_and_state_while_handling_background_proces
     int status;
     char prompt_buff[PROMPT_SIZE];
     char *state_buffer;
-    char *left, *right;
+    char *left_command, *right_command;
     char *argv[MAX_ARGS];
 
     write(STDOUT_FILENO, PROMPT, strlen(PROMPT));
@@ -114,12 +114,12 @@ void display_regular_prompt_with_time_and_state_while_handling_background_proces
     rtrim(buffer);
     display_Bye(buffer, len);
     parse_command(buffer,argv);
-    int is_bg = is_background(argv);
+    int background_state = is_background(argv);
 
-    if (split_pipe(buffer, &left, &right)) {
+    if (split_pipe(buffer, &left_command, &right_command)) {
         // execute pipe
         clock_gettime(CLOCK_MONOTONIC, &starting_time);
-        status = execute_pipe(left, right);
+        status = execute_pipe(left_command, right_command);
         clock_gettime(CLOCK_MONOTONIC, &ending_time);
         }
             
@@ -139,8 +139,8 @@ void display_regular_prompt_with_time_and_state_while_handling_background_proces
             write(STDERR_FILENO, ERROR, strlen(ERROR));
             exit(EXIT_FAILURE);
         }
-        if (is_bg) {
-            add_bg_process(pid, buffer, starting_time);
+        if (background_state) {
+            add_background_process(pid, buffer, starting_time);
             state_buffer = strdup("1&");
         }
         else{
@@ -152,7 +152,7 @@ void display_regular_prompt_with_time_and_state_while_handling_background_proces
         //compute time in ms
         long time_ms = 0;
 
-        if (!is_bg) {
+        if (!background_state) {
             time_ms = time_calculator_in_ms(starting_time, ending_time);
         }
         state_buffer=print_status_prompt(status);
